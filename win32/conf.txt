@@ -3,6 +3,8 @@ preload:3
 havesec:1
 checksum:0
 keynum:10
+iszip:1
+cpsav:"gamasdfasd"
 games:[
 {"/data/PacManV3","/data/PacMan.rom"},
 {"/data/SuperPacManV3","/data/PacandPal.rom"},

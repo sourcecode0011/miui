@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "interface.h"
-static int mGamenum, mPreload, mHavesec, mChecksum, mKeynum;
+static int mGamenum, mPreload, mHavesec, mChecksum, mKeynum,mZip=0;
 static struct pitem *mKeys=NULL;
 static struct games *mGames=NULL;
+static char* mCpsav = NULL;
 static int parseInt(char* p)
 {
 	int ret = 0;
@@ -105,6 +106,24 @@ static int parseKeys(char *p, struct pitem *g)
 	}
 	return ret;
 }
+static int parseStr(char* p, char** dest)
+{
+	int ret = 0;
+	if (!*dest&&*p == '\"')
+	{
+		char* line;
+		p += 1;
+		line = strstr(p, "\"");
+		ret = (line - p);
+		if (ret > 0)
+		{
+			*dest = (char*)malloc(ret+1);
+			strncpy(*dest, p, ret);
+			(*dest)[ret] = 0;
+		}
+	}
+	return ret;
+}
 int loadconf(const char* path)
 {
 	int re = 0;
@@ -153,6 +172,20 @@ int loadconf(const char* path)
 			p += (line - p) + 7;
 			mKeynum = parseInt(p);
 		}
+		line = strstr(p, "iszip");
+		if (line)
+		{
+			p += (line - p) + 6;
+			//p += parseStr(p, &mCpsav);
+			mZip = parseInt(p);
+		}
+		line = strstr(p, "cpsav");
+		if (line)
+		{
+			p += (line - p) + 6;
+			p += parseStr(p, &mCpsav);
+		}
+		
 		//games
 		line = strstr(p, "games");
 		if (line)
@@ -204,6 +237,7 @@ void freeconf()
 		}
 		free(mGames);
 	}
+	if (mCpsav)free(mCpsav);
 }
 
 int getGameNum(){ return mGamenum; }
@@ -211,6 +245,8 @@ int getPreload(){ return mPreload; }
 int getHavesec(){ return mHavesec; }
 int getChecksum(){ return mChecksum; }
 int getKeynum(){ return mKeynum; }
+char* getCpsav(){ return mCpsav; };
+int getIsZip(){ return mZip; }
 struct pitem *getKeys(){
 	return mKeys;
 }
